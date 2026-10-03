@@ -17,25 +17,24 @@ const itemGuides = [
   { id:"delivery", name:"배달용기", aliases:["플라스틱 용기","음식 용기","일회용 용기"], kind:"재활용 / 일반쓰레기", materials:["깨끗이 씻을 수 있음","오염이 남음"], defaultMaterial:0, steps:[["남은 음식", "비우기", "내용물을 음식물 또는 일반쓰레기 기준에 맞게 먼저 분리하세요."],["용기", "헹구기", "기름기와 이물질을 씻고 플라스틱 표시와 재질을 확인해 배출하세요."],["뚜껑·비닐", "따로 분리", "서로 다른 재질은 나누고 비닐은 깨끗할 때만 해당 기준에 맞게 배출하세요."]], variants:{1:[["오염된 용기", "일반쓰레기", "씻어도 음식물·기름이 남으면 종량제봉투에 넣으세요."]]}, warning:"검은색, 복합재질 등 선별이 어려운 용기는 지역 수거 기준을 확인하세요.", model:["plastic container","takeout","food container","tray"] }
 ];
 
-const regionGroups = [
-  { id:"r2", title:"2권역", areas:["신흥동","어룡동","우산동","월곡2동","첨단1동","신가동","신창동","동곡동","임곡동","본량동"], days:{general:[1,2,3,4,5,6],food:[1,2,3],recycle:[2,5]} },
-  { id:"r1", title:"1권역", areas:["월곡1동","첨단2동","운남동","평동","삼도동","선운지구","수완지구"], days:{general:[1,2,3,4,5,6],food:[1,2,3,4,5,6],recycle:[1,4]} },
-  { id:"r3", title:"3권역", areas:["송정1동","송정2동","도산동","비아동","하남2지구","하남공단","진곡산단"], days:{general:[1,2,3,4,5,6],food:[1,2,3,4,5,6],recycle:[3,6]} }
-];
-const stores = [
-  {name:"CU 광주우산점",address:"광주광역시 광산구 사암로215번길 103, 1층(우산동)",source:"https://tpb.purpleo.co.kr/view/8313"},
-  {name:"한국마트",address:"광주광역시 광산구 월곡로 54-1(월곡동)",source:"https://tpb.purpleo.co.kr/view/13833"},
-  {name:"대우별마트",address:"광주광역시 광산구 첨단중앙로181번길 88-21",source:"https://tpb.purpleo.co.kr/view/6123"},
-  {name:"광명슈퍼",address:"광주광역시 광산구 비아로12번길 27",source:"https://tpb.purpleo.co.kr/view/6112"},
-  {name:"5번로 편의점",address:"광주광역시 광산구 하남산단5번로 120, 나동 1층",source:"https://tpb.purpleo.co.kr/view/4388"},
-  {name:"송정철물공구",address:"광주광역시 광산구 상무대로 324",source:"https://tpb.purpleo.co.kr/view/8413"},
-  {name:"CU 산정행복점",address:"광주광역시 광산구 산정공원로71번길 14, 1층(산정동)",source:"https://tpb.purpleo.co.kr/view/10395"}
-];
+// 공단에서 자료를 받으면 이 배열에 정규화해 연결합니다.
+const regionGroups = [];
+const stores = [];
 const dayNames=["일","월","화","수","목","금","토"];
 let selectedGuide=null, selectedMaterial=0, imageUrl=null, aiModel=null, userCoords=null, selectedStore=0;
 
-function openSection(section){ document.getElementById(section)?.scrollIntoView({behavior:"smooth",block:"start"}); }
-document.querySelectorAll("[data-open]").forEach(button=>button.addEventListener("click",()=>openSection(button.dataset.open)));
+const viewIds=["home","photo","schedule","stores"];
+function openSection(section,updateHistory=true){
+  if(!viewIds.includes(section))section="home";
+  document.querySelectorAll(".app-view").forEach(view=>{view.hidden=view.id!==section});
+  document.querySelectorAll(".bottom-nav [data-open]").forEach(button=>button.classList.toggle("active",button.dataset.open===section));
+  const active=document.getElementById(section);if(active)active.scrollTop=0;
+  document.body.dataset.view=section;
+  if(updateHistory&&location.hash!==`#${section}`)history.pushState({view:section},"",`#${section}`);
+}
+document.querySelectorAll("[data-open]").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();openSection(button.dataset.open)}));
+window.addEventListener("popstate",()=>openSection(location.hash.slice(1)||"home",false));
+openSection(location.hash.slice(1)||"home",false);
 
 function guideById(id){return itemGuides.find(item=>item.id===id)}
 function setGuide(id, origin="직접 선택"){
@@ -111,7 +110,10 @@ function renderSchedule(){
   try{localStorage.setItem("gwangsan-area",area)}catch{}
 }
 const areaNames=regionGroups.flatMap(group=>group.areas).sort((a,b)=>a.localeCompare(b,"ko"));
-$("dong-select").innerHTML='<option value="">동 또는 지역을 선택하세요</option>'+areaNames.map(area=>`<option value="${area}">${area}</option>`).join("");
+$("dong-select").innerHTML=areaNames.length?'<option value="">동 또는 지역을 선택하세요</option>'+areaNames.map(area=>`<option value="${area}">${area}</option>`).join(""):'<option value="">수거 일정 자료 연결 전</option>';
+$("dong-select").disabled=!areaNames.length;
+$("dong-address-input").disabled=!areaNames.length;
+$("dong-address-button").disabled=!areaNames.length;
 $("dong-select").addEventListener("change",()=>{$("dong-message").textContent="";renderSchedule()});
 $("date-label").textContent=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"long",day:"numeric",weekday:"long"}).format(new Date());
 try{const saved=localStorage.getItem("gwangsan-area");if(saved&&areaNames.includes(saved)){$("dong-select").value=saved;renderSchedule()}}catch{}
@@ -143,19 +145,27 @@ async function geocode(query){
   return task;
 }
 function renderStores(){
+  if(!stores.length){
+    document.querySelector(".store-layout")?.classList.add("data-empty");
+    const mapPanel=document.querySelector(".map-panel");if(mapPanel)mapPanel.hidden=true;
+    $("store-list").innerHTML='<div class="empty-state"><span class="empty-icon" aria-hidden="true">⌖</span><strong>판매소 데이터 연결 준비 중</strong><span>판매소명과 주소 자료를 받으면<br>가까운 순으로 보여드릴게요.</span></div>';
+    return;
+  }
   const ordered=[...stores].map((store,index)=>({...store,index,distance:userCoords&&store.coords?haversine(userCoords,store.coords):null}));
   if(userCoords)ordered.sort((a,b)=>(a.distance??Infinity)-(b.distance??Infinity));
   $("store-list").innerHTML=ordered.map(store=>`<button type="button" class="store-card ${selectedStore===store.index?"active":""}" data-store="${store.index}"><span><strong>${store.name}</strong><span>${store.address}</span><span>봉투 종류 · 판매소에 확인 필요</span></span><em>${store.distance==null?"지도 보기":formatDistance(store.distance)}</em></button>`).join("");
   $("store-list").querySelectorAll("[data-store]").forEach(btn=>btn.addEventListener("click",()=>selectStore(Number(btn.dataset.store))));
 }
 function selectStore(index){
-  selectedStore=index;const store=stores[index];$("map-store-name").textContent=store.name;$("map-address").textContent=store.address;
+  const store=stores[index];if(!store)return;
+  selectedStore=index;$("map-store-name").textContent=store.name;$("map-address").textContent=store.address;
   $("store-map").src=`https://www.google.com/maps?q=${encodeURIComponent(store.address)}&output=embed`;
   $("map-placeholder").hidden=true;
   $("map-directions").href=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(store.address)}`;
   $("map-directions").hidden=false;renderStores();
 }
 async function geocodeStores(){
+  if(!stores.length)return;
   for(const store of stores){try{store.coords=await geocode(store.address)}catch{}renderStores()}
   if(userCoords&&!stores.some(s=>s.coords))$("location-status").textContent="거리 계산 서비스를 사용할 수 없어요. 주소와 지도를 확인해 주세요.";
 }
@@ -170,5 +180,9 @@ $("search-address").addEventListener("click",async()=>{
   try{const coords=await geocode(`광주광역시 광산구 ${value}`);if(!coords){$("location-status").textContent="주소를 찾지 못했어요. 더 자세한 도로명주소로 다시 입력해 주세요.";return}userCoords=coords;$("location-status").textContent="입력한 주소 기준 거리순으로 정렬했어요. 거리는 직선거리입니다.";renderStores()}catch{$("location-status").textContent="주소 검색 서비스를 사용할 수 없어요. 목록의 주소와 지도를 확인해 주세요."}
 });
 $("address-input").addEventListener("keydown",e=>{if(e.key==="Enter")$("search-address").click()});
-renderStores();selectStore(0);geocodeStores();
+$("use-location").disabled=!stores.length;
+$("address-input").disabled=!stores.length;
+$("search-address").disabled=!stores.length;
+renderStores();
+if(stores.length){selectStore(0);geocodeStores()}
 
