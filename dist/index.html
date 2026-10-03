@@ -14,21 +14,22 @@
 <body>
   <div class="site-shell">
     <header class="topbar">
-      <a class="brand" href="#home" aria-label="광산 생활배출 길잡이 홈">
+      <a class="brand" href="#home" data-open="home" aria-label="광산 생활배출 길잡이 홈">
         <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4c6.8 0 12 5.2 12 12S22.8 28 16 28 4 22.8 4 16 9.2 4 16 4Z" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m11 16 3.2 3.2L21 12.5" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span><strong>광산 생활배출</strong><small>버릴 때 바로 보는 길잡이</small></span>
       </a>
       <a class="top-help" href="https://www.gsfmc.or.kr/html/03030100" target="_blank" rel="noopener">공단 안내</a>
     </header>
 
-    <main id="home">
-      <section class="intro" aria-labelledby="intro-title">
+    <main id="app-main">
+      <section id="home" class="app-view home-view" aria-labelledby="intro-title">
+        <div class="intro">
         <p class="eyebrow">광산구 생활폐기물 안내</p>
         <h1 id="intro-title">이거 어떻게 버리지?<br><span>사진 한 장으로 시작해요.</span></h1>
         <p>물건을 찍어 확인하고, 우리 동네 배출일과 봉투 판매소까지 이어서 찾아보세요.</p>
-      </section>
+        </div>
 
-      <section class="quick-grid" aria-label="주요 기능">
+        <div class="quick-grid" aria-label="주요 기능">
         <button class="quick-card quick-photo" type="button" data-open="photo">
           <span class="quick-icon camera-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M9 14h8l3-4h8l3 4h8a4 4 0 0 1 4 4v19a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V18a4 4 0 0 1 4-4Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="24" cy="26" r="8" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="37" cy="20" r="1.7" fill="currentColor"/></svg></span>
           <span class="quick-copy"><span class="quick-kicker">가장 많이 찾는 기능</span><strong>사진 찍고<br>분리배출 확인</strong><span>재질별로 어떻게 나눌지 알려드려요</span></span>
@@ -44,10 +45,11 @@
           <span class="quick-copy"><strong>가까운 종량제봉투<br>판매소</strong><span>위치와 길찾기를 확인해요</span></span>
           <span class="quick-corner" aria-hidden="true">↗</span>
         </button>
+        </div>
       </section>
 
-      <section id="photo" class="workspace" aria-labelledby="photo-title">
-        <div class="section-heading"><div><p class="eyebrow">01 · 사진 안내</p><h2 id="photo-title">사진 찍고 분리배출 확인</h2></div><p>물건 하나가 잘 보이도록 찍어주세요.</p></div>
+      <section id="photo" class="workspace app-view" aria-labelledby="photo-title" hidden>
+        <div class="section-heading"><button class="view-back" type="button" data-open="home" aria-label="홈으로 돌아가기">‹</button><div><p class="eyebrow">01 · 사진 안내</p><h2 id="photo-title">사진 찍고 분리배출 확인</h2></div><p>물건 하나가 잘 보이도록 찍어주세요.</p></div>
         <div class="photo-layout">
           <div class="panel upload-panel">
             <div id="drop-zone" class="drop-zone">
@@ -71,33 +73,32 @@
         <div id="result-panel" class="result-panel" hidden aria-live="polite"></div>
       </section>
 
-      <section id="schedule" class="workspace" aria-labelledby="schedule-title">
-        <div class="section-heading"><div><p class="eyebrow">02 · 배출 일정</p><h2 id="schedule-title">오늘 우리동네 뭐 버리는 날?</h2></div><p>내 동네를 골라 정기 배출일을 확인하세요.</p></div>
+      <section id="schedule" class="workspace app-view" aria-labelledby="schedule-title" hidden>
+        <div class="section-heading"><button class="view-back" type="button" data-open="home" aria-label="홈으로 돌아가기">‹</button><div><p class="eyebrow">02 · 배출 일정</p><h2 id="schedule-title">오늘 우리동네 뭐 버리는 날?</h2></div><p>자료가 연결되면 동네별 오늘·내일 일정을 보여드려요.</p></div>
         <div class="panel schedule-panel">
-          <div class="schedule-controls"><label for="dong-select">동네 선택</label><select id="dong-select"><option value="">동 또는 지역을 선택하세요</option></select><div id="date-label" class="date-label"></div></div>
-          <div class="dong-address"><label for="dong-address-input">주소에 동 이름이 있다면</label><input id="dong-address-input" type="search" placeholder="예: 광산구 수완동 123"><button id="dong-address-button" class="secondary-btn" type="button">주소로 찾기</button></div>
+          <div class="schedule-controls"><label for="dong-select">동네 선택</label><select id="dong-select" disabled><option value="">수거 일정 자료 연결 전</option></select><div id="date-label" class="date-label"></div></div>
+          <div class="dong-address"><label for="dong-address-input">주소로 찾기</label><input id="dong-address-input" type="search" placeholder="자료 연결 후 사용할 수 있어요" disabled><button id="dong-address-button" class="secondary-btn" type="button" disabled>주소로 찾기</button></div>
           <div id="dong-message" class="status-line" role="status" aria-live="polite"></div>
-          <div id="schedule-empty" class="empty-state">동네를 선택하면 오늘과 다음 배출일을 보여드려요.</div>
+          <div id="schedule-empty" class="empty-state"><span class="empty-icon" aria-hidden="true">▤</span><strong>수거 일정 데이터 연결 준비 중</strong><span>동별 생활쓰레기·음식물·재활용품 자료를 받으면<br>오늘 배출 가능 품목부터 표시할게요.</span></div>
           <div id="schedule-results" hidden></div>
-          <p class="source-note">배출요일 참고자료 기준일: 2023.05.31 · 공휴일, 공동주택, 일부 구역은 다를 수 있습니다. <a href="https://www.gsfmc.or.kr/html/03030200" target="_blank" rel="noopener">공단 생활폐기물 노선 확인</a></p>
+          <p class="source-note">제공 예정 자료: 동·주소, 폐기물 종류, 배출요일, 수거일정, 공휴일 운영 기준</p>
         </div>
       </section>
 
-      <section id="stores" class="workspace" aria-labelledby="stores-title">
-        <div class="section-heading"><div><p class="eyebrow">03 · 봉투 판매소</p><h2 id="stores-title">가까운 종량제봉투 판매소</h2></div><p>현재 위치나 주소로 가까운 곳을 찾아보세요.</p></div>
+      <section id="stores" class="workspace app-view" aria-labelledby="stores-title" hidden>
+        <div class="section-heading"><button class="view-back" type="button" data-open="home" aria-label="홈으로 돌아가기">‹</button><div><p class="eyebrow">03 · 봉투 판매소</p><h2 id="stores-title">가까운 종량제봉투 판매소</h2></div><p>자료가 연결되면 위치와 길찾기를 제공해요.</p></div>
         <div class="store-layout">
           <div class="panel store-list-panel">
-            <div class="location-form"><button id="use-location" class="primary-btn" type="button">내 위치로 찾기</button><span class="or-text">또는</span><label class="sr-only" for="address-input">주소 입력</label><input id="address-input" type="search" placeholder="주소나 동 이름 입력"><button id="search-address" class="secondary-btn" type="button">주소로 찾기</button></div>
-            <div id="location-status" class="status-line" role="status" aria-live="polite">위치를 선택하면 거리순으로 정렬해 드려요.</div>
+            <div class="location-form"><button id="use-location" class="primary-btn" type="button" disabled>내 위치로 찾기</button><span class="or-text">또는</span><label class="sr-only" for="address-input">주소 입력</label><input id="address-input" type="search" placeholder="자료 연결 후 사용할 수 있어요" disabled><button id="search-address" class="secondary-btn" type="button" disabled>주소로 찾기</button></div>
+            <div id="location-status" class="status-line" role="status" aria-live="polite">판매소 자료를 기다리고 있어요.</div>
             <div id="store-list" class="store-list"></div>
-            <p class="source-note">공공데이터 기반 공개 판매소 중 일부만 수록했습니다(원자료 기준일 2024.09.05). 방문 전 영업 여부와 봉투 종류를 확인하세요. 거리 계산은 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a> 지오코딩을 사용합니다. <a href="https://www.data.go.kr/data/15114144/standard.do" target="_blank" rel="noopener">공공데이터 원본</a></p>
+            <p class="source-note">제공 예정 자료: 판매소명, 주소, 좌표, 판매 봉투 종류, 운영 상태</p>
           </div>
-          <div class="panel map-panel"><div class="map-title"><strong id="map-store-name">지도에서 위치 확인</strong><span id="map-address">판매소를 선택해 주세요</span></div><iframe id="store-map" title="판매소 지도" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe><div id="map-placeholder" class="map-placeholder">목록에서 판매소를 선택하면 지도가 열립니다.</div><a id="map-directions" class="secondary-btn map-directions" href="#stores" target="_blank" rel="noopener" hidden>길찾기 열기</a></div>
+          <div class="panel map-panel"><div class="map-title"><strong id="map-store-name">판매소 데이터 연결 준비 중</strong><span id="map-address">자료를 받으면 지도와 가까운 순 목록이 표시됩니다.</span></div><iframe id="store-map" title="판매소 지도" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe><div id="map-placeholder" class="map-placeholder"><span class="empty-icon" aria-hidden="true">⌖</span><strong>지도 연결 준비 중</strong><span>판매소 주소와 좌표를 반영한 뒤<br>현재 위치 기준 길찾기를 제공할게요.</span></div><a id="map-directions" class="secondary-btn map-directions" href="#stores" target="_blank" rel="noopener" hidden>길찾기 열기</a></div>
         </div>
       </section>
     </main>
-    <footer class="footer"><strong>광산 생활배출 길잡이</strong><span>광산구 생활폐기물 정보 시범 서비스</span><a href="https://www.gsfmc.or.kr" target="_blank" rel="noopener">광산구시설관리공단</a></footer>
-    <nav class="bottom-nav" aria-label="주요 메뉴"><a href="#photo"><span aria-hidden="true">▣</span>사진 안내</a><a href="#schedule"><span aria-hidden="true">▤</span>배출 일정</a><a href="#stores"><span aria-hidden="true">⌖</span>판매소</a></nav>
+    <nav class="bottom-nav" aria-label="주요 메뉴"><button type="button" data-open="home" class="active"><span aria-hidden="true">●</span>홈</button><button type="button" data-open="photo"><span aria-hidden="true">▣</span>사진 안내</button><button type="button" data-open="schedule"><span aria-hidden="true">▤</span>배출 일정</button><button type="button" data-open="stores"><span aria-hidden="true">⌖</span>판매소</button></nav>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js" defer></script>
